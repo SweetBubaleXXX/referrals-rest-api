@@ -1,4 +1,5 @@
 from dependency_injector import containers, providers
+from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from .config import Settings
@@ -9,7 +10,9 @@ class Container(containers.DeclarativeContainer):
         modules=[
             "src.database.session",
         ],
-        packages=[],
+        packages=[
+            "src.features.users",
+        ],
     )
 
     settings = providers.ThreadSafeSingleton(Settings)
@@ -22,3 +25,5 @@ class Container(containers.DeclarativeContainer):
         async_sessionmaker,
         db_engine.provided,
     )
+
+    passlib_context = providers.Object(CryptContext(schemes=["bcrypt"]))

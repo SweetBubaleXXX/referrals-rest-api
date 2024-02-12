@@ -3,10 +3,10 @@ profile = "black"
 extend_skip_glob = ["alembic/*"]
 
 [tool.poetry]
-name = "fastapi-boilerplate"
+name = "Referrals API"
 version = "0.1.0"
-description = "Project structure template"
-authors = ["Your Name <you@example.com>"]
+description = "REST API for referrals"
+authors = ["70811772+SweetBubaleXXX@users.noreply.github.com"]
 
 [tool.poetry.dependencies]
 alembic = "^1.13.1"
@@ -17,6 +17,9 @@ pydantic-settings = "^2.1.0"
 python = "^3.11"
 sqlalchemy = {extras = ["asyncio"], version = "^2.0.25"}
 uvicorn = "^0.27.0.post1"
+email-validator = "^2.1.0.post1"
+asyncpg = "^0.29.0"
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 
 
 [tool.poetry.group.dev.dependencies]
@@ -25,6 +28,7 @@ asgi-lifespan = "^2.1.0"
 httpx = "^0.26.0"
 pytest = "^7.4.4"
 pytest-asyncio = "^0.23.4"
+factory-boy = "^3.3.0"
 
 
 [tool.poetry.group.prod.dependencies]
