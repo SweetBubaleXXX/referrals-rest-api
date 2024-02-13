@@ -7,7 +7,7 @@ class UserCredentials(BaseModel):
 
 
 class UserOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
     id: int
     email: EmailStr
+
+    model_config = ConfigDict(from_attributes=True)

@@ -7,11 +7,12 @@ from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 from src import main
-from src.core.config import Settings
+from src.auth.schemas import TokenSubject
+from src.core.config import Settings, access_token_backend
 from src.core.container import Container
 from src.database.models import Base
 from src.database.session import get_session
-from src.features.referrals.models import ReferralCode  # noqa
+from src.features.referrals.services import ReferralsService
 from src.features.users.models import User
 from src.features.users.schemas import UserCredentials
 from src.features.users.services import UsersService
@@ -55,22 +56,10 @@ async def db_session(container: Container):
         yield session
 
 
-@pytest.fixture(scope="session")
-def app():
-    app = main.create_app()
-    return app
-
-
 @pytest_asyncio.fixture(scope="session", autouse=True)
 async def trigger_lifespan_events(app: FastAPI):
     async with LifespanManager(app):
         yield
-
-
-@pytest.fixture
-def client(app: FastAPI):
-    with TestClient(app) as client:
-        yield client
 
 
 @pytest.fixture
@@ -86,10 +75,36 @@ def user():
 @pytest_asyncio.fixture
 async def saved_user(user: User, db_session: AsyncSession):
     db_session.add(user)
-    await db_session.flush()
+    await db_session.commit()
+    await db_session.refresh(user)
     return user
 
 
 @pytest.fixture
 def user_credentials(user):
     return UserCredentials.model_validate(user, from_attributes=True)
+
+
+@pytest.fixture
+def auth_headers(saved_user: User):
+    access_token = access_token_backend.create_access_token(
+        TokenSubject(user_id=saved_user.id).model_dump()
+    )
+    return {"Authorization": f"Bearer {access_token}"}
+
+
+@pytest.fixture
+def referrals_service(db_session: AsyncSession):
+    return ReferralsService(db_session)
+
+
+@pytest.fixture(scope="session")
+def app():
+    app = main.create_app()
+    return app
+
+
+@pytest.fixture
+def client(auth_headers: dict, app: FastAPI):
+    with TestClient(app, headers=auth_headers) as client:
+        yield client

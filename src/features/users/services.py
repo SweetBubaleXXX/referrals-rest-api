@@ -56,7 +56,6 @@ class UsersService:
         await self.session.flush()
         return db_user
 
-    async def delete_user(self, user_id: int) -> None:
-        user = await self.get_user_by_id(user_id)
+    async def delete_user(self, user: User) -> None:
         await self.session.delete(user)
         await self.session.flush()

@@ -53,11 +53,10 @@ async def test_create_user(
 ):
     created_user = await users_service.create_user(user_credentials)
     assert user_credentials.password != created_user.password
-    (
-        await db_session.scalars(
-            select(User).where(User.email == user_credentials.email)
-        )
-    ).one()
+    user_in_db = await db_session.scalar(
+        select(User).where(User.email == user_credentials.email)
+    )
+    assert user_in_db
 
 
 @pytest.mark.asyncio
@@ -76,7 +75,7 @@ async def test_delete_user(
     saved_user: User,
     db_session: AsyncSession,
 ):
-    await users_service.delete_user(saved_user.id)
+    await users_service.delete_user(saved_user)
     user_in_db = await db_session.scalar(
         select(User).where(User.email == saved_user.email)
     )
