@@ -1,3 +1,6 @@
+from datetime import date, timedelta
+from uuid import uuid4
+
 import pytest
 import pytest_asyncio
 from asgi_lifespan import LifespanManager
@@ -12,6 +15,7 @@ from src.core.config import Settings, access_token_backend
 from src.core.container import Container
 from src.database.models import Base
 from src.database.session import get_session
+from src.features.referrals.models import ReferralCode
 from src.features.referrals.services import ReferralsService
 from src.features.users.models import User
 from src.features.users.schemas import UserCredentials
@@ -91,6 +95,30 @@ def auth_headers(saved_user: User):
         TokenSubject(user_id=saved_user.id).model_dump()
     )
     return {"Authorization": f"Bearer {access_token}"}
+
+
+@pytest.fixture
+def tomorrow():
+    return date.today() + timedelta(days=1)
+
+
+@pytest.fixture
+def referral_code(tomorrow: date):
+    return ReferralCode(id=uuid4(), expiration_date=tomorrow)
+
+
+@pytest_asyncio.fixture
+async def saved_referral(
+    referral_code: ReferralCode,
+    saved_user: User,
+    db_session: AsyncSession,
+):
+    referral_code.owner = saved_user
+    db_session.add(referral_code)
+    await db_session.commit()
+    await db_session.refresh(referral_code)
+    await db_session.refresh(saved_user)
+    return referral_code
 
 
 @pytest.fixture
