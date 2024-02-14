@@ -21,6 +21,7 @@ email-validator = "^2.1.0.post1"
 asyncpg = "^0.29.0"
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 fastapi-jwt = "^0.2.0"
+aiohttp = "^3.9.3"
 
 
 [tool.poetry.group.dev.dependencies]

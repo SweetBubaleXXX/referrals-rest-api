@@ -1,4 +1,5 @@
 from datetime import date, timedelta
+from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import pytest
@@ -15,6 +16,7 @@ from src.core.config import Settings, access_token_backend
 from src.core.container import Container
 from src.database.models import Base
 from src.database.session import get_session
+from src.features.email.services import EmailValidationService
 from src.features.referrals.models import ReferralCode
 from src.features.referrals.services import ReferralsService
 from src.features.users.models import User
@@ -63,6 +65,22 @@ async def db_session(container: Container):
 @pytest_asyncio.fixture(scope="session", autouse=True)
 async def trigger_lifespan_events(app: FastAPI):
     async with LifespanManager(app):
+        yield
+
+
+@pytest.fixture
+def email_validation_service_mock():
+    email_validation_service_mock = AsyncMock(EmailValidationService)
+    email_validation_service_mock.email_is_valid.return_value = True
+    return email_validation_service_mock
+
+
+@pytest.fixture(autouse=True)
+def override_email_validation_service(
+    email_validation_service_mock: AsyncMock,
+    container: Container,
+):
+    with container.email_validation_service.override(email_validation_service_mock):
         yield
 
 

@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     DB_URL: str = "sqlite+aiosqlite:///:memory:"
     TEST_DB_URL: str = "sqlite+aiosqlite:///:memory:"
 
+    EMAIL_HUNTER_URL: str = "https://api.hunter.io"
+    EMAIL_HUNTER_API_KEY: str | None = None
+
     model_config = MODEL_CONFIG
 
 

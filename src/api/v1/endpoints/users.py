@@ -1,9 +1,12 @@
 from typing import Annotated
 from uuid import UUID
 
+from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Body, Depends, HTTPException, status
 
 from src.auth.dependencies import CurrentUser
+from src.core.container import Container
+from src.features.email.services import EmailValidationService
 from src.features.referrals.services import ReferralsService
 from src.features.users.schemas import UserCredentials, UserOut
 from src.features.users.services import UsersService
@@ -20,12 +23,18 @@ async def get_referees(
 
 
 @router.post("")
+@inject
 async def create_user(
     credentials: UserCredentials,
     users_service: Annotated[UsersService, Depends()],
     referrals_service: Annotated[ReferralsService, Depends()],
     referral_code: Annotated[UUID | None, Body()] = None,
+    email_validation_service: EmailValidationService = Depends(
+        Provide[Container.email_validation_service]
+    ),
 ) -> UserOut:
+    if not await email_validation_service.email_is_valid(credentials.email):
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid email address")
     user = await users_service.create_user(credentials)
     if referral_code:
         await referrals_service.add_referee(referral_code, user)

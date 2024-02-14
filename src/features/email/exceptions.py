@@ -1,0 +1,2 @@
+class EmailValidationRequestFailed(Exception):
+    pass

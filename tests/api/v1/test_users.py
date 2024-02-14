@@ -1,4 +1,5 @@
 from datetime import date
+from unittest.mock import AsyncMock
 
 import pytest
 from fastapi import status
@@ -49,6 +50,21 @@ def test_create_user(client: TestClient, settings: Settings):
     assert response.status_code == status.HTTP_200_OK
     response_body = response.json()
     assert "password" not in response_body
+
+
+def test_create_user_invalid_email(
+    email_validation_service_mock: AsyncMock,
+    client: TestClient,
+    settings: Settings,
+):
+    email_validation_service_mock.email_is_valid.return_value = False
+    credentials = UserCredentials(email="test@mail.com", password="password")
+
+    response = client.post(
+        f"{settings.API_V1_PREFIX}/users",
+        json={"credentials": credentials.model_dump()},
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
 @pytest.mark.asyncio
