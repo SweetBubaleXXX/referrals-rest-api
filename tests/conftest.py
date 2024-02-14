@@ -98,6 +98,11 @@ def auth_headers(saved_user: User):
 
 
 @pytest.fixture
+def yesterday():
+    return date.today() - timedelta(days=1)
+
+
+@pytest.fixture
 def tomorrow():
     return date.today() + timedelta(days=1)
 

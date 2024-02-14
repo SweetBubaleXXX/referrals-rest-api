@@ -1,5 +1,9 @@
 from fastapi import FastAPI, HTTPException, Request, status
 
+from src.features.referrals.exceptions import (
+    ReferralCodeAlreadyExists,
+    ReferralCodeNotFound,
+)
 from src.features.users.exceptions import UserAlreadyExists, UserNotFound
 
 
@@ -15,4 +19,7 @@ def already_exists_handler(request: Request, exc: BaseException):
 
 def setup_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(UserNotFound, not_found_handler)
+    app.add_exception_handler(ReferralCodeNotFound, not_found_handler)
+
     app.add_exception_handler(UserAlreadyExists, already_exists_handler)
+    app.add_exception_handler(ReferralCodeAlreadyExists, already_exists_handler)

@@ -57,6 +57,7 @@ class ReferralsService:
         referral_code.owner = owner
         self.session.add(referral_code)
         await self.session.flush()
+        await self.session.refresh(referral_code)
         return referral_code
 
     async def delete_code(self, referral_code: ReferralCode) -> None:

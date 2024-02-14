@@ -88,6 +88,7 @@ async def test_get_referees(
     (await saved_referral.awaitable_attrs.referees).extend(referees)
     db_session.add(saved_referral)
     await db_session.flush()
+
     found_referees = await referrals_service.get_referees(saved_user.id)
     assert len(found_referees) == 5
 
@@ -103,6 +104,7 @@ async def test_add_referee(
     referral_code.owner = referral_owner
     db_session.add(referral_code)
     await db_session.flush()
+
     await referrals_service.add_referee(referral_code, saved_user)
     assert saved_user in await referral_code.awaitable_attrs.referees
 
@@ -117,5 +119,6 @@ async def test_add_referee_own_referral(
     referral_code.owner = saved_user
     db_session.add(referral_code)
     await db_session.flush()
+
     with pytest.raises(InvalidReferral):
         await referrals_service.add_referee(referral_code, saved_user)

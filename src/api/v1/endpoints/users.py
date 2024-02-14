@@ -32,3 +32,4 @@ async def delete_user(
     if user_id != current_user.id:
         raise HTTPException(status.HTTP_403_FORBIDDEN)
     await users_service.delete_user(current_user)
+    await users_service.session.commit()

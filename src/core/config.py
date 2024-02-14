@@ -10,20 +10,20 @@ MODEL_CONFIG = SettingsConfigDict(
 )
 
 
-class AuthSettings(BaseSettings):
-    SECRET_KEY: str = secrets.token_urlsafe(32)
-
-    model_config = MODEL_CONFIG
-
-
 class Settings(BaseSettings):
     API_TITLE: str = "API"
     API_DESCRIPTION: str = ""
     API_VERSION: str = "0.1.0"
-    API_V1_STR: str = "/api/v1"
+    API_V1_PREFIX: str = "/api"
 
     DB_URL: str = "sqlite+aiosqlite:///:memory:"
     TEST_DB_URL: str = "sqlite+aiosqlite:///:memory:"
+
+    model_config = MODEL_CONFIG
+
+
+class AuthSettings(BaseSettings):
+    SECRET_KEY: str = secrets.token_urlsafe(32)
 
     model_config = MODEL_CONFIG
 
