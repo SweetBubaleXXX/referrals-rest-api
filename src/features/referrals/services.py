@@ -74,10 +74,11 @@ class ReferralsService:
         ).all()
         return referees
 
-    async def add_referee(self, referral_code: ReferralCode, user: User) -> None:
+    async def add_referee(self, referral_code_id: UUID, user: User) -> None:
+        referral_code = await self.get_code_by_id(referral_code_id)
         if not self.referral_is_active(referral_code):
             raise ReferralCodeExpired()
-        if referral_code.owner is user:
+        if referral_code.owner_id == user.id:
             raise InvalidReferral()
         user.registration_referral = referral_code
         self.session.add(user)

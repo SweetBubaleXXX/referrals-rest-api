@@ -1,10 +1,15 @@
 from datetime import date
+from uuid import uuid4
 
 import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.features.referrals.exceptions import InvalidReferral, ReferralCodeAlreadyExists
+from src.features.referrals.exceptions import (
+    InvalidReferral,
+    ReferralCodeAlreadyExists,
+    ReferralCodeNotFound,
+)
 from src.features.referrals.models import ReferralCode
 from src.features.referrals.services import ReferralsService
 from src.features.users.models import User
@@ -105,8 +110,14 @@ async def test_add_referee(
     db_session.add(referral_code)
     await db_session.flush()
 
-    await referrals_service.add_referee(referral_code, saved_user)
+    await referrals_service.add_referee(referral_code.id, saved_user)
     assert saved_user in await referral_code.awaitable_attrs.referees
+
+
+@pytest.mark.asyncio
+async def test_add_referee_not_found(user: User, referrals_service: ReferralsService):
+    with pytest.raises(ReferralCodeNotFound):
+        await referrals_service.add_referee(uuid4(), user)
 
 
 @pytest.mark.asyncio
@@ -121,4 +132,4 @@ async def test_add_referee_own_referral(
     await db_session.flush()
 
     with pytest.raises(InvalidReferral):
-        await referrals_service.add_referee(referral_code, saved_user)
+        await referrals_service.add_referee(referral_code.id, saved_user)
